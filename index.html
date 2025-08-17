@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carian Data Pelajar 2025 - SK Kampung Selamat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg mb-8">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center space-x-8">
+                <button id="searchPageBtn" class="px-6 py-4 text-indigo-600 border-b-2 border-indigo-600 font-semibold">
+                    🔍 Carian Pelajar
+                </button>
+                <button id="analysisPageBtn" class="px-6 py-4 text-gray-600 hover:text-indigo-600 font-semibold">
+                    📊 Analisis KWAMP & RMT
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Search Page -->
+        <div id="searchPage">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">SK Kampung Selamat</h1>
+                <h2 class="text-2xl font-semibold text-indigo-600 mb-1">Sistem Carian Data Pelajar 2025</h2>
+                <p class="text-gray-600">Masukkan nama pelajar untuk mencari maklumat</p>
+            </div>
+
+        <!-- Search Section -->
+        <div class="max-w-2xl mx-auto mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="flex-1">
+                        <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-2">
+                            Nama Pelajar
+                        </label>
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Taip nama pelajar..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                        >
+                    </div>
+                    <div class="flex items-end">
+                        <button 
+                            id="searchBtn"
+                            class="w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+                        >
+                            🔍 Cari
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="hidden text-center mb-6">
+            <div class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-lg">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Sedang mencari data...
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="bg-indigo-600 text-white px-6 py-4">
+                    <h3 class="text-lg font-semibold">Hasil Carian</h3>
+                    <p id="resultCount" class="text-indigo-100 text-sm"></p>
+                </div>
+                <div id="resultsContainer" class="p-6">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div id="noResultsMessage" class="hidden text-center">
+            <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-8">
+                <div class="text-6xl mb-4">😔</div>
+                <h3 class="text-xl font-semibold text-yellow-800 mb-2">Nama tidak dijumpai</h3>
+                <p class="text-yellow-700">Cuba semak ejaan nama atau masukkan nama yang berbeza.</p>
+            </div>
+        </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="hidden text-center">
+                <div class="bg-red-50 border border-red-200 rounded-xl p-8">
+                    <div class="text-6xl mb-4">⚠️</div>
+                    <h3 class="text-xl font-semibold text-red-800 mb-2">Ralat Memuat Data</h3>
+                    <p class="text-red-700">Tidak dapat mengakses data. Sila cuba lagi kemudian.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Page -->
+        <div id="analysisPage" class="hidden">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">Analisis Kelayakan Pelajar</h1>
+                <h2 class="text-2xl font-semibold text-indigo-600 mb-1">KWAMP & RMT 2025</h2>
+                <p class="text-gray-600">Statistik dan senarai pelajar layak untuk program KWAMP dan RMT</p>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                    <div class="text-3xl mb-2">👥</div>
+                    <div class="text-2xl font-bold text-gray-800" id="totalStudents">0</div>
+                    <div class="text-sm text-gray-600">Jumlah Pelajar</div>
+                </div>
+                <div class="bg-green-50 rounded-xl shadow-lg p-6 text-center border border-green-200">
+                    <div class="text-3xl mb-2">🏆</div>
+                    <div class="text-2xl font-bold text-green-600" id="kwampEligible">0</div>
+                    <div class="text-sm text-green-700">Layak KWAMP</div>
+                </div>
+                <div class="bg-blue-50 rounded-xl shadow-lg p-6 text-center border border-blue-200">
+                    <div class="text-3xl mb-2">📚</div>
+                    <div class="text-2xl font-bold text-blue-600" id="rmtEligible">0</div>
+                    <div class="text-sm text-blue-700">Layak RMT</div>
+                </div>
+                <div class="bg-purple-50 rounded-xl shadow-lg p-6 text-center border border-purple-200">
+                    <div class="text-3xl mb-2">⭐</div>
+                    <div class="text-2xl font-bold text-purple-600" id="bothEligible">0</div>
+                    <div class="text-sm text-purple-700">Layak Kedua-dua</div>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Penapis</h3>
+                <div class="flex flex-wrap gap-4">
+                    <button id="showAllBtn" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        Lihat Statistik
+                    </button>
+                    <button id="showKwampBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        Layak KWAMP
+                    </button>
+                    <button id="showRmtBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Layak RMT
+                    </button>
+                    <button id="showBothBtn" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                        Layak Kedua-dua
+                    </button>
+                </div>
+            </div>
+
+            <!-- Analysis Results -->
+            <div id="analysisResults" class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="bg-indigo-600 text-white px-6 py-4">
+                    <h3 class="text-lg font-semibold">Senarai Pelajar</h3>
+                    <p id="analysisResultCount" class="text-indigo-100 text-sm">Menunjukkan semua pelajar</p>
+                </div>
+                <div id="analysisContainer" class="p-6">
+                    <!-- Analysis results will be populated here -->
+                </div>
+            </div>
+
+            <!-- Loading for Analysis -->
+            <div id="analysisLoading" class="hidden text-center mb-6">
+                <div class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-lg">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Sedang menganalisis data...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let studentsData = [];
+        let isDataLoaded = false;
+
+        // Load CSV data when page loads
+        async function loadStudentData() {
+            try {
+                const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTLEibzQL9Xt0ilIG_47WKHY6znLKiKpw6cLUVDWKDexz6GuB-DQVdfZR96X4uPwbmyR-FWcoT7E7n2/pub?output=csv';
+                const response = await fetch(csvUrl);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                
+                const csvText = await response.text();
+                studentsData = parseCSV(csvText);
+                isDataLoaded = true;
+                console.log('Data loaded successfully:', studentsData.length, 'records');
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showError();
+            }
+        }
+
+        // Parse CSV text into array of objects
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const headers = lines[0].split(',').map(header => header.trim().replace(/"/g, ''));
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                if (values.length === headers.length) {
+                    const student = {};
+                    headers.forEach((header, index) => {
+                        student[header] = values[index] ? values[index].trim().replace(/"/g, '') : '';
+                    });
+                    data.push(student);
+                }
+            }
+            return data;
+        }
+
+        // Parse a single CSV line handling commas within quotes
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current);
+            return result;
+        }
+
+        // Function to check if a name is a real student name
+        function isRealStudentName(nama) {
+            if (!nama || typeof nama !== 'string') return false;
+            
+            const name = nama.trim().toLowerCase();
+            
+            // Filter out empty names
+            if (name === '' || name === 'n/a' || name === '-') return false;
+            
+            // Filter out test entries
+            const testPatterns = [
+                'test', 'testing', 'ujian', 'cuba', 'try',
+                'sample', 'contoh', 'demo', 'example',
+                'admin', 'administrator', 'user', 'pengguna',
+                'dummy', 'fake', 'palsu', 'kosong'
+            ];
+            
+            for (const pattern of testPatterns) {
+                if (name.includes(pattern)) return false;
+            }
+            
+            // Filter out names that are too short (less than 3 characters)
+            if (name.length < 3) return false;
+            
+            // Filter out names with only numbers
+            if (/^\d+$/.test(name)) return false;
+            
+            // Filter out names with special characters only
+            if (/^[^a-zA-Z\u00C0-\u017F\u0600-\u06FF\u4e00-\u9fff]+$/.test(name)) return false;
+            
+            return true;
+        }
+
+        // Search function
+        function searchStudents(searchTerm) {
+            if (!isDataLoaded) {
+                showError();
+                return [];
+            }
+
+            if (!searchTerm.trim()) {
+                return [];
+            }
+
+            const term = searchTerm.toLowerCase().trim();
+            return studentsData.filter(student => {
+                const nama = student.NAMA || student.nama || '';
+                // Only include students with real names
+                return isRealStudentName(nama) && nama.toLowerCase().includes(term);
+            });
+        }
+
+        // Display search results
+        function displayResults(results, searchTerm) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultCount = document.getElementById('resultCount');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+
+            hideAllMessages();
+
+            if (results.length === 0) {
+                noResultsMessage.classList.remove('hidden');
+                return;
+            }
+
+            resultCount.textContent = `Dijumpai ${results.length} rekod untuk "${searchTerm}"`;
+            resultsContainer.innerHTML = '';
+
+            results.forEach((student, index) => {
+                const studentCard = createStudentCard(student, index + 1);
+                resultsContainer.appendChild(studentCard);
+            });
+
+            resultsSection.classList.remove('hidden');
+        }
+
+        // Create student information card
+        function createStudentCard(student, index) {
+            const card = document.createElement('div');
+            card.className = 'bg-gray-50 rounded-lg p-6 mb-4 border border-gray-200 hover:shadow-md transition-shadow';
+
+            const fields = [
+                { label: 'Nama', key: 'NAMA' },
+                { label: 'No. Daftar', key: 'NO DAFTAR', altKeys: ['O', 'NO DAFTAR', 'NODAFTAR'] },
+                { label: 'No. KP', key: 'NO KP' },
+                { label: 'Kelas', key: 'KELAS' },
+                { label: 'Tarikh Lahir', key: 'TARIKH LAHIR' },
+                { label: 'Jantina', key: 'JANTINA' },
+                { label: 'No. HP', key: 'NO HP' },
+                { label: 'Alamat', key: 'ALAMAT' },
+                { label: 'Delima', key: 'DELIMA' },
+                { label: 'Bangsa', key: 'BANGSA' },
+                { label: 'Agama', key: 'AGAMA' },
+                { label: 'Status', key: 'STATUS' },
+                { label: 'Password', key: 'PASSWORD' },
+                { label: 'RMT', key: 'RMT' },
+                { label: 'KWAMP', key: 'KWAMP' }
+            ];
+
+            // Get student photo URL
+            const photoUrl = student.GAMBAR || student.gambar || '';
+            const studentName = student.NAMA || student.nama || 'Pelajar';
+
+            let cardHTML = `
+                <div class="flex flex-col lg:flex-row gap-6 mb-4">
+                    <!-- Student Photo Section -->
+                    <div class="flex-shrink-0">
+                        <div class="w-32 h-40 mx-auto lg:mx-0">
+                            ${photoUrl ? `
+                                <img 
+                                    src="${photoUrl}" 
+                                    alt="Gambar ${studentName}"
+                                    class="w-full h-full object-cover rounded-lg border-2 border-indigo-200 shadow-md"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                >
+                                <div class="w-full h-full bg-gradient-to-br from-indigo-100 to-blue-100 rounded-lg border-2 border-indigo-200 flex items-center justify-center text-indigo-600" style="display: none;">
+                                    <div class="text-center">
+                                        <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <p class="text-xs">Tiada Gambar</p>
+                                    </div>
+                                </div>
+                            ` : `
+                                <div class="w-full h-full bg-gradient-to-br from-indigo-100 to-blue-100 rounded-lg border-2 border-indigo-200 flex items-center justify-center text-indigo-600">
+                                    <div class="text-center">
+                                        <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <p class="text-xs">Tiada Gambar</p>
+                                    </div>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                    
+                    <!-- Student Info Header -->
+                    <div class="flex-1">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                            <div>
+                                <h4 class="text-xl font-bold text-gray-800 mb-1">${studentName}</h4>
+                                <p class="text-gray-600">Pelajar #${index}</p>
+                            </div>
+                            <span class="bg-indigo-100 text-indigo-800 px-4 py-2 rounded-full text-sm font-medium mt-2 sm:mt-0 self-start sm:self-center">
+                                ${student.KELAS || 'N/A'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Student Details Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            `;
+
+            fields.forEach(field => {
+                let value = student[field.key] || '';
+                
+                // Try alternative keys if main key doesn't have value
+                if (!value && field.altKeys) {
+                    for (const altKey of field.altKeys) {
+                        if (student[altKey]) {
+                            value = student[altKey];
+                            break;
+                        }
+                    }
+                }
+                
+                // If still no value, set to N/A
+                if (!value) {
+                    value = 'N/A';
+                }
+                
+                cardHTML += `
+                    <div class="bg-white p-3 rounded border">
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                            ${field.label}
+                        </div>
+                        <div class="text-sm text-gray-800 font-medium">
+                            ${value}
+                        </div>
+                    </div>
+                `;
+            });
+
+            cardHTML += '</div>';
+            card.innerHTML = cardHTML;
+            return card;
+        }
+
+        // Show loading indicator
+        function showLoading() {
+            hideAllMessages();
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+        }
+
+        // Show error message
+        function showError() {
+            hideAllMessages();
+            document.getElementById('errorMessage').classList.remove('hidden');
+        }
+
+        // Hide all message elements
+        function hideAllMessages() {
+            document.getElementById('loadingIndicator').classList.add('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('noResultsMessage').classList.add('hidden');
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        // Handle search
+        async function handleSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = searchInput.value.trim();
+
+            if (!searchTerm) {
+                hideAllMessages();
+                return;
+            }
+
+            showLoading();
+
+            // If data not loaded yet, try to load it
+            if (!isDataLoaded) {
+                await loadStudentData();
+            }
+
+            // Small delay for better UX
+            setTimeout(() => {
+                const results = searchStudents(searchTerm);
+                displayResults(results, searchTerm);
+            }, 500);
+        }
+
+        // Analysis functions
+        function analyzeStudents() {
+            if (!isDataLoaded) return;
+
+            // Filter to only include real students
+            const realStudents = studentsData.filter(student => {
+                const nama = student.NAMA || student.nama || '';
+                return isRealStudentName(nama);
+            });
+
+            const stats = {
+                total: realStudents.length,
+                kwampEligible: 0,
+                rmtEligible: 0,
+                bothEligible: 0
+            };
+
+            console.log('Analyzing', realStudents.length, 'real students...');
+
+            realStudents.forEach((student, index) => {
+                // Check multiple possible column names for KWAMP
+                const kwampValue = student.KWAMP || student.kwamp || student.Kwamp || '';
+                const rmtValue = student.RMT || student.rmt || student.Rmt || '';
+                
+                const kwampStr = kwampValue.toString().toLowerCase().trim();
+                const rmtStr = rmtValue.toString().toLowerCase().trim();
+                
+                // More flexible eligibility check
+                const isKwampEligible = kwampStr === 'ya' || kwampStr === 'yes' || kwampStr === '1' || 
+                                       kwampStr === 'layak' || kwampStr === 'eligible' || kwampStr === 'true';
+                const isRmtEligible = rmtStr === 'ya' || rmtStr === 'yes' || rmtStr === '1' || 
+                                     rmtStr === 'layak' || rmtStr === 'eligible' || rmtStr === 'true';
+
+                if (isKwampEligible) {
+                    stats.kwampEligible++;
+                    console.log(`Student ${index + 1} (${student.NAMA}) - KWAMP eligible: ${kwampValue}`);
+                }
+                if (isRmtEligible) {
+                    stats.rmtEligible++;
+                    console.log(`Student ${index + 1} (${student.NAMA}) - RMT eligible: ${rmtValue}`);
+                }
+                if (isKwampEligible && isRmtEligible) {
+                    stats.bothEligible++;
+                }
+            });
+
+            console.log('Analysis results:', stats);
+            updateStatistics(stats);
+        }
+
+        function updateStatistics(stats) {
+            document.getElementById('totalStudents').textContent = stats.total;
+            document.getElementById('kwampEligible').textContent = stats.kwampEligible;
+            document.getElementById('rmtEligible').textContent = stats.rmtEligible;
+            document.getElementById('bothEligible').textContent = stats.bothEligible;
+        }
+
+        function filterStudents(filterType) {
+            if (!isDataLoaded) return [];
+
+            return studentsData.filter(student => {
+                // Only include students with real names
+                const nama = student.NAMA || student.nama || '';
+                if (!isRealStudentName(nama)) return false;
+
+                // Check multiple possible column names
+                const kwampValue = student.KWAMP || student.kwamp || student.Kwamp || '';
+                const rmtValue = student.RMT || student.rmt || student.Rmt || '';
+                
+                const kwampStr = kwampValue.toString().toLowerCase().trim();
+                const rmtStr = rmtValue.toString().toLowerCase().trim();
+                
+                const isKwampEligible = kwampStr === 'ya' || kwampStr === 'yes' || kwampStr === '1' || 
+                                       kwampStr === 'layak' || kwampStr === 'eligible' || kwampStr === 'true';
+                const isRmtEligible = rmtStr === 'ya' || rmtStr === 'yes' || rmtStr === '1' || 
+                                     rmtStr === 'layak' || rmtStr === 'eligible' || rmtStr === 'true';
+
+                switch(filterType) {
+                    case 'kwamp': return isKwampEligible;
+                    case 'rmt': return isRmtEligible;
+                    case 'both': return isKwampEligible && isRmtEligible;
+                    default: return true;
+                }
+            });
+        }
+
+        function showAnalysisInstructions() {
+            const container = document.getElementById('analysisContainer');
+            const resultCount = document.getElementById('analysisResultCount');
+            
+            resultCount.textContent = 'Pilih kategori untuk melihat senarai pelajar';
+            container.innerHTML = `
+                <div class="text-center py-12">
+                    <div class="text-6xl mb-4">📊</div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Statistik Kelayakan Pelajar</h3>
+                    <p class="text-gray-600 mb-6">Lihat statistik di atas dan pilih kategori untuk melihat senarai pelajar yang layak.</p>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+                        <p class="text-blue-800 text-sm">
+                            💡 <strong>Petunjuk:</strong> Klik butang "Layak KWAMP", "Layak RMT", atau "Layak Kedua-dua" untuk melihat senarai nama pelajar.
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayAnalysisResults(students, filterType) {
+            const container = document.getElementById('analysisContainer');
+            const resultCount = document.getElementById('analysisResultCount');
+            
+            const filterLabels = {
+                'kwamp': 'pelajar layak KWAMP',
+                'rmt': 'pelajar layak RMT',
+                'both': 'pelajar layak kedua-dua program'
+            };
+
+            resultCount.textContent = `Menunjukkan ${students.length} ${filterLabels[filterType] || 'pelajar'}`;
+            container.innerHTML = '';
+
+            if (students.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="text-6xl mb-4">📋</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Tiada Data</h3>
+                        <p class="text-gray-600">Tiada pelajar yang memenuhi kriteria yang dipilih.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            students.forEach((student, index) => {
+                const card = createAnalysisCard(student, index + 1);
+                container.appendChild(card);
+            });
+        }
+
+        function createAnalysisCard(student, index) {
+            const card = document.createElement('div');
+            card.className = 'bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200';
+
+            // Check multiple possible column names
+            const kwampValue = student.KWAMP || student.kwamp || student.Kwamp || '';
+            const rmtValue = student.RMT || student.rmt || student.Rmt || '';
+            
+            const kwampStr = kwampValue.toString().toLowerCase().trim();
+            const rmtStr = rmtValue.toString().toLowerCase().trim();
+            
+            const isKwampEligible = kwampStr === 'ya' || kwampStr === 'yes' || kwampStr === '1' || 
+                                   kwampStr === 'layak' || kwampStr === 'eligible' || kwampStr === 'true';
+            const isRmtEligible = rmtStr === 'ya' || rmtStr === 'yes' || rmtStr === '1' || 
+                                 rmtStr === 'layak' || rmtStr === 'eligible' || rmtStr === 'true';
+
+            const photoUrl = student.GAMBAR || student.gambar || '';
+            const studentName = student.NAMA || student.nama || 'Pelajar';
+            const noDaftar = student.O || student['NO DAFTAR'] || student.NODAFTAR || 'N/A';
+
+            card.innerHTML = `
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <!-- Photo -->
+                    <div class="flex-shrink-0">
+                        <div class="w-16 h-20 mx-auto sm:mx-0">
+                            ${photoUrl ? `
+                                <img 
+                                    src="${photoUrl}" 
+                                    alt="Gambar ${studentName}"
+                                    class="w-full h-full object-cover rounded border border-gray-300"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                >
+                                <div class="w-full h-full bg-gray-200 rounded border border-gray-300 flex items-center justify-center text-gray-500 text-xs" style="display: none;">
+                                    👤
+                                </div>
+                            ` : `
+                                <div class="w-full h-full bg-gray-200 rounded border border-gray-300 flex items-center justify-center text-gray-500 text-xs">
+                                    👤
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                    
+                    <!-- Info -->
+                    <div class="flex-1">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                            <div class="mb-2 sm:mb-0">
+                                <h4 class="font-semibold text-gray-800">${studentName}</h4>
+                                <p class="text-sm text-gray-600">No. Daftar: ${noDaftar}</p>
+                                <p class="text-sm text-gray-600">Kelas: ${student.KELAS || 'N/A'}</p>
+                            </div>
+                            
+                            <!-- Status Badges -->
+                            <div class="flex gap-2">
+                                ${isKwampEligible ? 
+                                    '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">✓ KWAMP</span>' : 
+                                    '<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">✗ KWAMP</span>'
+                                }
+                                ${isRmtEligible ? 
+                                    '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">✓ RMT</span>' : 
+                                    '<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">✗ RMT</span>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Navigation functions
+        function showSearchPage() {
+            document.getElementById('searchPage').classList.remove('hidden');
+            document.getElementById('analysisPage').classList.add('hidden');
+            
+            // Update navigation buttons
+            document.getElementById('searchPageBtn').className = 'px-6 py-4 text-indigo-600 border-b-2 border-indigo-600 font-semibold';
+            document.getElementById('analysisPageBtn').className = 'px-6 py-4 text-gray-600 hover:text-indigo-600 font-semibold';
+        }
+
+        function showAnalysisPage() {
+            document.getElementById('searchPage').classList.add('hidden');
+            document.getElementById('analysisPage').classList.remove('hidden');
+            
+            // Update navigation buttons
+            document.getElementById('searchPageBtn').className = 'px-6 py-4 text-gray-600 hover:text-indigo-600 font-semibold';
+            document.getElementById('analysisPageBtn').className = 'px-6 py-4 text-indigo-600 border-b-2 border-indigo-600 font-semibold';
+            
+            // Load analysis if data is ready
+            if (isDataLoaded) {
+                analyzeStudents();
+                showAnalysisInstructions();
+            } else {
+                // Show loading for analysis
+                document.getElementById('analysisLoading').classList.remove('hidden');
+                // Try to load data and then analyze
+                loadStudentData().then(() => {
+                    if (isDataLoaded) {
+                        document.getElementById('analysisLoading').classList.add('hidden');
+                        analyzeStudents();
+                        showAnalysisInstructions();
+                    }
+                });
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+
+            // Load data when page loads
+            loadStudentData().then(() => {
+                if (isDataLoaded) {
+                    analyzeStudents();
+                }
+            });
+
+            // Navigation
+            document.getElementById('searchPageBtn').addEventListener('click', showSearchPage);
+            document.getElementById('analysisPageBtn').addEventListener('click', showAnalysisPage);
+
+            // Search functionality
+            searchBtn.addEventListener('click', handleSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleSearch();
+                }
+            });
+
+            // Real-time search as user types (with debounce)
+            let searchTimeout;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    if (searchInput.value.trim().length >= 2) {
+                        handleSearch();
+                    } else if (searchInput.value.trim().length === 0) {
+                        hideAllMessages();
+                    }
+                }, 300);
+            });
+
+            // Analysis filter buttons
+            document.getElementById('showAllBtn').addEventListener('click', () => {
+                showAnalysisInstructions();
+            });
+
+            document.getElementById('showKwampBtn').addEventListener('click', () => {
+                const students = filterStudents('kwamp');
+                displayAnalysisResults(students, 'kwamp');
+            });
+
+            document.getElementById('showRmtBtn').addEventListener('click', () => {
+                const students = filterStudents('rmt');
+                displayAnalysisResults(students, 'rmt');
+            });
+
+            document.getElementById('showBothBtn').addEventListener('click', () => {
+                const students = filterStudents('both');
+                displayAnalysisResults(students, 'both');
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97076da5740144bf',t:'MTc1NTQxNTQzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
